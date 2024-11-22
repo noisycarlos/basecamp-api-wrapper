@@ -10,6 +10,8 @@ class Basecamp3::TypeMapper
     case basecamp_type
     when 'Project'
       Basecamp3::Project
+    when 'CardTable'
+      Basecamp3::CardTable
     when 'Chat::Transcript'
       Basecamp3::Campfire
     when 'Chat::Lines::Text'

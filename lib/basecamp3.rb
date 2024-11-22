@@ -14,6 +14,7 @@ require 'basecamp3/concerns/recordingable'
 require 'basecamp3/concerns/commentable'
 
 require 'basecamp3/models/project'
+require 'basecamp3/models/card_table'
 require 'basecamp3/models/person'
 require 'basecamp3/models/todo_set'
 require 'basecamp3/models/todo_list'
@@ -34,9 +35,10 @@ require 'basecamp3/models/questionnaire'
 require 'basecamp3/models/inbox'
 require 'basecamp3/models/forward'
 
+# Basecamp3
 module Basecamp3
   class << self
-    HOST = 'https://3.basecampapi.com'
+    HOST = 'https://3.basecampapi.com'.freeze
 
     # Establishes a connection with basecamp
     #
@@ -59,3 +61,4 @@ module Basecamp3
     end
   end
 end
+

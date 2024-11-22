@@ -1,6 +1,5 @@
 # A class for handling requests
 class Basecamp3::Request
-
   # Initializes the request object.
   #
   # @param [String] access_token the data to send in the request
@@ -22,9 +21,8 @@ class Basecamp3::Request
     uri = build_request_uri(path)
     https = build_https_object(uri)
     request = build_request_object(method, uri)
-
+    # puts "Full path: #{uri}"
     request.body = data.to_json unless data.nil?
-
     get_response(https, request, model)
   end
 
@@ -37,6 +35,14 @@ class Basecamp3::Request
   # @return [Basecamp3::Model, OpenStruct]
   def get(path, params = {}, model = 'raw')
     request(:get, "#{path}#{hash_to_get_query(params)}", nil, model)
+  end
+
+  def head(path)
+    uri = build_request_uri(path)
+    https = build_https_object(uri)
+    request = build_request_object(:head, uri)
+    # puts "Full path: #{uri}"
+    https.request(request)
   end
 
   # Sends the post request.
@@ -137,7 +143,7 @@ class Basecamp3::Request
   # @return [Net::HTTP::Get, Net::HTTP::Post, Net::HTTP::Put, Net::HTTP::Delete]
   # @raise [StandardError] raises an error for unsupported http method
   def build_request_object(method, uri)
-    raise "Unsupported http method: #{method.to_s}" unless [:get, :post, :put, :delete].include?(method)
+    raise "Unsupported http method: #{method}" unless %i[get post put delete head].include?(method)
 
     request = Object.const_get("Net::HTTP::#{method.to_s.capitalize}").new(uri.request_uri)
     request['Authorization'] = "Bearer #{@access_token}"
@@ -155,9 +161,10 @@ class Basecamp3::Request
   # @return [String]
   def hash_to_get_query(hash)
     if !hash.nil? && !hash.empty?
-      "?#{hash.map{ |i, v| "#{i}=#{v}" }.join('&')}"
+      "?#{hash.map { |i, v| "#{i}=#{v}" }.join('&')}"
     else
       ''
     end
   end
 end
+

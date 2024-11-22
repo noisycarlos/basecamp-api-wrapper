@@ -10,8 +10,6 @@ class Basecamp3::Model
     end
   end
 
-  protected
-
   # Validates if the given data contain the required attributes.
   #
   # @param [Hash] data the data to send in the request
@@ -21,3 +19,4 @@ class Basecamp3::Model
     self::REQUIRED_FIELDS.each { |f| raise "Missing required parameter #{f}" if data[f.to_sym].nil? }
   end
 end
+

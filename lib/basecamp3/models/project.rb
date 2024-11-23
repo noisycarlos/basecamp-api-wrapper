@@ -8,9 +8,10 @@ class Basecamp3::Project < Basecamp3::Model
                 :updated_at,
                 :name,
                 :description,
-                :bookmarked
+                :bookmarked,
+                :dock
 
-  REQUIRED_FIELDS = %w(name)
+  REQUIRED_FIELDS = %w[name]
 
   # Returns a paginated list of active projects (basecamps) visible to the current user sorted by most recently
   # created project (basecamp) first.
@@ -22,7 +23,7 @@ class Basecamp3::Project < Basecamp3::Model
   #
   # @return [Array<Basecamp3::Project>]
   def self.all(params = {})
-    Basecamp3.request.get("/projects", params, Basecamp3::Project)
+    Basecamp3.request.get('/projects', params, Basecamp3::Project)
   end
 
   # Returns the project (basecamp).
@@ -42,8 +43,8 @@ class Basecamp3::Project < Basecamp3::Model
   #
   # @return [Basecamp3::Project]
   def self.create(data)
-    self.validate_required(data)
-    Basecamp3.request.post("/projects", data, Basecamp3::Project)
+    validate_required(data)
+    Basecamp3.request.post('/projects', data, Basecamp3::Project)
   end
 
   # Updates the project.
@@ -55,7 +56,7 @@ class Basecamp3::Project < Basecamp3::Model
   #
   # @return [Basecamp3::Project]
   def self.update(id, data)
-    self.validate_required(data)
+    validate_required(data)
     Basecamp3.request.put("/projects/#{id}", data, Basecamp3::Project)
   end
 
@@ -68,3 +69,4 @@ class Basecamp3::Project < Basecamp3::Model
     Basecamp3.request.delete("/projects/#{id}")
   end
 end
+

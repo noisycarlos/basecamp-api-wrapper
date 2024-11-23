@@ -19,24 +19,8 @@ class Basecamp3::CardTable < Basecamp3::Model
                 :bucket,
                 :creator,
                 :subscribers,
-                :lists,
-                # Returns a paginated list of active projects (basecamps) visible to the current user sorted by most recently
-                # created project (basecamp) first.
-                #
-                # @param [Hash] params additional parameters
-                # @option params [Integer] :page (optional) to paginate results
-                # @option params [String] :status (optional) when set to archived or trashed,
-                # will return archived or trashed projects (basecamps) visible to the current user
-                #
-                # @return [Array<Basecamp3::Project>]
-                def self.all(params = {})
-                  Basecamp3.request.get('/projects', params, Basecamp3::Project)
-                end
+                :lists
 
-  # Returns the project (basecamp).
-  #
-  # @param [Integer] id the id of the project
-  #
   # @return [Basecamp3::CardTable]
   def self.find(bucket, board)
     uri = "/buckets/#{bucket}/card_tables/#{board}"
@@ -48,6 +32,37 @@ class Basecamp3::CardTable < Basecamp3::Model
     uri = "/buckets/#{bucket}/card_tables/#{board}"
     response = Basecamp3.request.head(uri)
     response['etag']
+  end
+
+  # @return [Basecamp3::CardTable[] ]
+  def self.all
+    project_list = []
+    1000.times do |page|
+      projects = Basecamp3::Project.all(page: page)
+      projects.each do |proj|
+        project_list << proj
+      end
+      break if projects.count < 15
+    end
+
+    res = []
+    project_list.each do |project|
+      boards = Basecamp3::CardTable.in_project(project.id)
+      boards.each do |board|
+        next unless board['name'] == 'kanban_board'
+
+        board['project'] = project
+        res << board
+      end
+    end
+    res
+  end
+
+  # @return [Basecamp3::CardTable[] ]
+  def self.in_project(project)
+    uri = "/projects/#{project}"
+    response = Basecamp3.request.get(uri, {}, Basecamp3::Project)
+    response.dock
   end
 
   # Creates a project.
@@ -84,4 +99,3 @@ class Basecamp3::CardTable < Basecamp3::Model
     Basecamp3.request.delete("/projects/#{id}")
   end
 end
-

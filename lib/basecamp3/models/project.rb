@@ -12,6 +12,7 @@ class Basecamp3::Project < Basecamp3::Model
                 :dock
 
   REQUIRED_FIELDS = %w[name]
+  DEFAULT_MAX_PAGES = 1000
 
   # Returns a paginated list of active projects (basecamps) visible to the current user sorted by most recently
   # created project (basecamp) first.
@@ -23,7 +24,17 @@ class Basecamp3::Project < Basecamp3::Model
   #
   # @return [Array<Basecamp3::Project>]
   def self.all(params = {})
-    Basecamp3.request.get('/projects', params, Basecamp3::Project)
+    max_pages = params[:max_pages]
+    max_pages = DEFAULT_MAX_PAGES if max_pages.blank?
+    res = []
+
+    1.upto max_pages do |page|
+      params[:page] = page
+      projects = Basecamp3.request.get('/projects', params, Basecamp3::Project)
+      res.concat projects
+      break if projects.count < 15
+    end
+    res
   end
 
   # Returns the project (basecamp).
@@ -69,4 +80,3 @@ class Basecamp3::Project < Basecamp3::Model
     Basecamp3.request.delete("/projects/#{id}")
   end
 end
-

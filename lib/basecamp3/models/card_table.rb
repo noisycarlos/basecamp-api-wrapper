@@ -36,33 +36,30 @@ class Basecamp3::CardTable < Basecamp3::Model
 
   # @return [Basecamp3::CardTable[] ]
   def self.all
-    project_list = []
-    1000.times do |page|
-      projects = Basecamp3::Project.all(page: page)
-      projects.each do |proj|
-        project_list << proj
-      end
-      break if projects.count < 15
-    end
-
+    project_list = Basecamp3::Project.all
     res = []
     project_list.each do |project|
       boards = Basecamp3::CardTable.in_project(project.id)
-      boards.each do |board|
-        next unless board['name'] == 'kanban_board'
-
-        board['project'] = project
-        res << board
-      end
+      res.concat(boards)
     end
     res
   end
 
   # @return [Basecamp3::CardTable[] ]
-  def self.in_project(project)
-    uri = "/projects/#{project}"
-    response = Basecamp3.request.get(uri, {}, Basecamp3::Project)
-    response.dock
+  def self.in_project(bucket)
+    uri = "/projects/#{bucket}"
+    project = Basecamp3.request.get(uri, {}, Basecamp3::Project) # Might need to iterate through api pagination
+    res = []
+    boards = project.dock
+    return res if boards.nil?
+
+    boards.each do |board|
+      next unless board['name'] == 'kanban_board'
+
+      board['project'] = project
+      res << board
+    end
+    res
   end
 
   # Creates a project.

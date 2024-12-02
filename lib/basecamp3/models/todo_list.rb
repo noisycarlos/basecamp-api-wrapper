@@ -17,7 +17,7 @@ class Basecamp3::TodoList < Basecamp3::Model
                 :completed,
                 :completed_ratio
 
-  REQUIRED_FIELDS = %w(name)
+  REQUIRED_FIELDS = %w[name]
 
   # Returns a list of related todos.
   #
@@ -57,7 +57,7 @@ class Basecamp3::TodoList < Basecamp3::Model
   #
   # @return [Basecamp3::TodoList]
   def self.create(bucket_id, parent_id, data)
-    self.validate_required(data)
+    validate_required(data)
     Basecamp3.request.post("/buckets/#{bucket_id}/todosets/#{parent_id}/todolists", data, Basecamp3::TodoList)
   end
 
@@ -71,7 +71,8 @@ class Basecamp3::TodoList < Basecamp3::Model
   #
   # @return [Basecamp3::TodoList]
   def self.update(bucket_id, id, data)
-    self.validate_required(data)
+    validate_required(data)
     Basecamp3.request.put("/buckets/#{bucket_id}/todolists/#{id}", data, Basecamp3::TodoList)
   end
 end
+

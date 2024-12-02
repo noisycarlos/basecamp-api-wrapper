@@ -27,6 +27,17 @@ class Basecamp3::CardTable < Basecamp3::Model
     Basecamp3.request.get(uri, {}, Basecamp3::CardTable)
   end
 
+  # https://3.basecamp.com/5456546/buckets/30299287/card_tables/5561609809
+  def self.from_url(url)
+    uri = URI.parse url
+    parts = uri.path.split '/'
+    res = {}
+    res[:account] = parts[1]
+    res[:bucket] = parts[3]
+    res[:board] = parts.last
+    res
+  end
+
   # @return [string]
   def self.etag(bucket, board)
     uri = "/buckets/#{bucket}/card_tables/#{board}"

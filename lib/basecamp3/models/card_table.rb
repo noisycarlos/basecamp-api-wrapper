@@ -39,8 +39,8 @@ class Basecamp3::CardTable < Basecamp3::Model
   end
 
   # @return [string]
-  def self.etag(bucket, board)
-    uri = "/buckets/#{bucket}/card_tables/#{board}"
+  def self.etag(card_table_board)
+    uri = "/buckets/#{card_table_board.bucket}/card_tables/#{card_table_board.board}"
     response = Basecamp3.request.head(uri)
     response['etag']
   end
@@ -71,6 +71,23 @@ class Basecamp3::CardTable < Basecamp3::Model
       res << board
     end
     res
+  end
+
+  def self.cards_in_column(column)
+    uri = "buckets/#{column['bucket']['id']}/card_tables/lists/#{column['id']}/cards"
+    cards = Basecamp3.request.get(uri, {}, Basecamp3::Card) # Might need to iterate through api pagination
+    return cards if cards.present?
+
+    nil
+  end
+
+  def self.columns_in_board(card_table_board)
+    uri = "buckets/#{card_table_board.bucket}/card_tables/#{card_table_board.board}"
+    board = Basecamp3.request.get(uri, {}, Basecamp3::CardTable) # Might need to iterate through api pagination
+
+    return board if board.present?
+
+    nil
   end
 
   # Creates a project.

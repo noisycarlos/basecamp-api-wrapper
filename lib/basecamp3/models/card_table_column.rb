@@ -1,0 +1,25 @@
+class Basecamp3::CardTableColumn < Basecamp3::Model
+  REQUIRED_FIELDS = %w[title]
+  attr_accessor :id,
+                :updated_at,
+                :created_at,
+                :parent,
+                :bucket,
+                :title,
+                :url,
+                :app_url,
+                :bookmark_url,
+                :subscription_url,
+                :description,
+                :status,
+                :visible_to_clients,
+                :inherits_status,
+                :type,
+                :creator,
+                :description,
+                :subscribers,
+                :color,
+                :cards_count,
+                :comment_count,
+                :cards_url
+end

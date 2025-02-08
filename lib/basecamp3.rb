@@ -15,6 +15,7 @@ require 'basecamp3/concerns/commentable'
 
 require 'basecamp3/models/project'
 require 'basecamp3/models/card_table'
+require 'basecamp3/models/card_table_column'
 require 'basecamp3/models/card'
 require 'basecamp3/models/person'
 require 'basecamp3/models/todo_set'

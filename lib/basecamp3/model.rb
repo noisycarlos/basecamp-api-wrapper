@@ -10,6 +10,14 @@ class Basecamp3::Model
     end
   end
 
+  def update_attributes(attributes = {})
+    return nil if attributes.blank?
+
+    attributes.each do |key, value|
+      send("#{key}=", value) if respond_to?("#{key}=")
+    end
+  end
+
   # Validates if the given data contain the required attributes.
   #
   # @param [Hash] data the data to send in the request
@@ -19,4 +27,3 @@ class Basecamp3::Model
     self::REQUIRED_FIELDS.each { |f| raise "Missing required parameter #{f}" if data[f.to_sym].nil? }
   end
 end
-

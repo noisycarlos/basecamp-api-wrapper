@@ -84,10 +84,29 @@ class Basecamp3::CardTable < Basecamp3::Model
   def self.columns_in_board(card_table_board)
     uri = "buckets/#{card_table_board.bucket}/card_tables/#{card_table_board.board}"
     board = Basecamp3.request.get(uri, {}, Basecamp3::CardTable) # Might need to iterate through api pagination
-
     return board if board.present?
 
     nil
+  end
+
+  # @return [Basecamp3::CardTableColumn]
+  def self.create_column(bucket, board, title)
+    data = { "title": title }
+    url = "buckets/#{bucket}/card_tables/#{board}/columns"
+    Basecamp3.request.post(url, data, Basecamp3::CardTableColumn)
+  end
+
+  # @return [Basecamp3::CardTable]
+  def self.update_card(bucket, _board, card, data)
+    url = "/buckets/#{bucket}/card_tables/cards/#{card}"
+    Basecamp3.request.put(url, data, Basecamp3::Card)
+  end
+
+  # @return [Basecamp3::CardTable]
+  def self.move_card(bucket, card, destination_column)
+    data = { "column_id": destination_column }
+    url = "buckets/#{bucket}/card_tables/cards/#{card}/moves"
+    Basecamp3.request.post(url, data, Basecamp3::Card)
   end
 
   # Creates a project.
@@ -96,10 +115,12 @@ class Basecamp3::CardTable < Basecamp3::Model
   # @option params [String] :name (required) the name of the project
   # @option params [String] :description (optional) the description of the project
   #
-  # @return [Basecamp3::Project]
-  def self.create(data)
-    validate_required(data)
-    Basecamp3.request.post('/projects', data, Basecamp3::Project)
+  # @return [Basecamp3::CardTable]
+  def self.create(bucket, column, data)
+    # data = { "title": title, "content": content, "due_on": due_on }
+    Basecamp3.request.post("buckets/#{bucket}/card_tables/lists/#{column}/cards",
+                           data,
+                           Basecamp3::CardTable)
   end
 
   # Updates the project.

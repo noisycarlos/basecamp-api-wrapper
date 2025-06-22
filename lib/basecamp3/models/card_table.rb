@@ -73,9 +73,48 @@ class Basecamp3::CardTable < Basecamp3::Model
     res
   end
 
+  def self.get_next_page_uri(response)
+    puts " ---- Getting next page"
+    link = response[:headers]["link"]&.first
+    if link.present?
+      url = link.split('<')[1].split('>')[0] 
+      # puts "Url: #{url}"
+      return url
+    end
+    nil
+  rescue => e
+    puts "Error getting next page: #{e}"
+    return nil
+  end
+
   def self.cards_in_column(column)
     uri = "buckets/#{column['bucket']['id']}/card_tables/lists/#{column['id']}/cards"
-    cards = Basecamp3.request.get(uri, {}, Basecamp3::Card) # Might need to iterate through api pagination
+    # puts "###### URI: #{uri}"
+    cards = []
+    response = Basecamp3.request.get_with_headers(uri, {}, Basecamp3::Card) # Might need to iterate through api pagination
+    cards += response[:body] if response[:body].present?
+    uri = get_next_page_uri(response)
+    begin 
+      while uri.present?
+        # puts "#### New URI: #{uri}"
+        response = Basecamp3.request.get_with_headers(uri, {}, Basecamp3::Card, build=false)
+        if response[:body].present?
+          new_cards = response[:body] if response[:body].present?
+          # puts "New cards (#{new_cards.count}): #{new_cards.inspect}"
+          cards += new_cards
+          uri = get_next_page_uri(response)
+        else
+          uri = nil
+          # puts "No more cards"
+        end
+      end
+    rescue => e
+      puts "Error getting additional cards: #{e}"
+    end
+
+    # puts "######## Response headers: #{response[:headers]}"
+    # puts "######## Board headers: #{board&.headers}"
+    puts "Total Cards: #{cards.count}"
     return cards if cards.present?
 
     nil
@@ -83,7 +122,10 @@ class Basecamp3::CardTable < Basecamp3::Model
 
   def self.columns_in_board(card_table_board)
     uri = "buckets/#{card_table_board.bucket}/card_tables/#{card_table_board.board}"
-    board = Basecamp3.request.get(uri, {}, Basecamp3::CardTable) # Might need to iterate through api pagination
+    response = Basecamp3.request.get_with_headers(uri, {}, Basecamp3::CardTable) # Might need to iterate through api pagination
+    board = response[:body] if response[:body].present?
+    # puts "######## Response headers: #{response[:headers]}"
+    # puts "######## Board headers: #{board&.headers}"
     return board if board.present?
 
     nil

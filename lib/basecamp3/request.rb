@@ -26,6 +26,20 @@ class Basecamp3::Request
     get_response(https, request, model)
   end
 
+  def request_with_headers(method, path, data = nil, model = 'raw', build=true)
+    if build
+      uri = build_request_uri(path) 
+    else 
+      uri = URI.parse(path)
+    end
+
+    https = build_https_object(uri)
+    request = build_request_object(method, uri)
+    # puts "Full path: #{uri}"
+    request.body = data.to_json unless data.nil?
+    get_response_with_headers(https, request, model)
+  end
+
   # Sends the get request.
   #
   # @param [String] path the request path
@@ -35,6 +49,10 @@ class Basecamp3::Request
   # @return [Basecamp3::Model, OpenStruct]
   def get(path, params = {}, model = 'raw')
     request(:get, "#{path}#{hash_to_get_query(params)}", nil, model)
+  end
+
+  def get_with_headers(path, params = {}, model = 'raw', build=true)
+    request_with_headers(:get, "#{path}#{hash_to_get_query(params)}", nil, model, build)
   end
 
   def head(path)
@@ -103,6 +121,23 @@ class Basecamp3::Request
     return json if model == 'raw'
 
     Basecamp3::ResponseParser.parse(json, model)
+  end
+
+  def get_response_with_headers(https, request, model)
+    response = https.request(request)
+
+    code = response.code.to_i
+    message = response.message
+
+    raise message if [400, 403, 404, 507].include?(code)
+
+    return true if code == 204
+
+    json = response.body.nil? ? nil : JSON.parse(response.body)
+
+    return json if model == 'raw'
+
+    {body: Basecamp3::ResponseParser.parse(json, model), headers: response.to_hash}
   end
 
   # Builds the request uri.

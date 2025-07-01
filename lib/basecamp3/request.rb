@@ -52,7 +52,7 @@ class Basecamp3::Request
   end
 
   def get_next_page_uri(response)
-    puts " --** Getting next page"
+    # puts " --** Getting next page"
     link = response[:headers]["link"]&.first
     if link.present?
       url = link.split('<')[1].split('>')[0] 
@@ -61,27 +61,26 @@ class Basecamp3::Request
     end
     nil
   rescue => e
-    puts "** Error getting next page: #{e}"
+    # puts "** Error getting next page: #{e}"
     return nil
   end
 
   def get_all(uri, params = {}, model = 'raw')
-    # uri = "buckets/#{column['bucket']['id']}/card_tables/lists/#{column['id']}/cards"
-    puts "###### URI: #{uri}"
+    # puts "###### URI: #{uri}"
     items = []
     response = request_with_headers(:get, "#{uri}#{hash_to_get_query(params)}", nil, model)
     items += response[:body] if response[:body].present?
-    puts "##### Cards in first page: #{items.count}"
+    # puts "##### Cards in first page: #{items.count}"
     uri = get_next_page_uri(response)
     begin 
       while uri.present?
-        puts "#### New URI: #{uri}"
+        # puts "#### New URI: #{uri}"
         response = Basecamp3.request.get_with_headers(uri, {}, Basecamp3::Card, build=false)
         if response[:body].present?
           new_items = response[:body]
           items += new_items if new_items.present?
           uri = get_next_page_uri(response)
-          puts "    ## Cards in page: #{new_items.count}" if new_items.present?
+          # puts "    ## Cards in page: #{new_items.count}" if new_items.present?
         else
           uri = nil
         end
@@ -89,7 +88,7 @@ class Basecamp3::Request
     rescue => e
       puts "Error getting additional cards: #{e}"
     end
-    puts "##### Total Cards: #{items.count}"
+    # puts "##### Total Cards: #{items.count}"
     items
   end
 

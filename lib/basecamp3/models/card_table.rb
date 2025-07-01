@@ -74,7 +74,7 @@ class Basecamp3::CardTable < Basecamp3::Model
   end
 
   def self.get_next_page_uri(response)
-    puts " ---- Getting next page"
+    # puts " ---- Getting next page"
     link = response[:headers]["link"]&.first
     if link.present?
       url = link.split('<')[1].split('>')[0] 

@@ -46,11 +46,12 @@ module Basecamp3
     #
     # @param [Integer] account_id the id of your basecamp account
     # @param [Integer] access_token the oauth2 access token
+    #       Basecamp3.connect(sync_job.card_table_board.account, sync_job.user.basecamp_account.token)
+
     def connect(account_id, access_token)
       @account_id = account_id
       @access_token = access_token
       @uri = URI.parse("#{HOST}/#{@account_id}")
-
       @request = Basecamp3::Request.new(@access_token, @uri)
     end
 

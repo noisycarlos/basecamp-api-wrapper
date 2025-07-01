@@ -98,8 +98,7 @@ class Basecamp3::CardTable < Basecamp3::Model
 
   def self.columns_in_board(card_table_board)
     uri = "buckets/#{card_table_board.bucket}/card_tables/#{card_table_board.board}"
-    response = Basecamp3.request.get_all(uri, {}, Basecamp3::CardTable) 
-    board = response[:body] if response[:body].present?
+    board = Basecamp3.request.get(uri, {}, Basecamp3::CardTable) 
     return board if board.present?
     nil
   end
